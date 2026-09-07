@@ -368,33 +368,214 @@ class ChessEngineService {
   }
 
   List<Move> _generatePawnMoves(Square from, Piece piece) {
-    // TODO: Implement pawn movement logic
-    return [];
+    final moves = <Move>[];
+    final direction = piece.isWhite ? -8 : 8; // White moves up (decreasing rank)
+    final startRank = piece.isWhite ? 48 : 8; // Rank 2 or 7
+
+    // Single step forward
+    final oneStep = from + direction;
+    if (_isValidSquare(oneStep) && board.getPiece(oneStep) == null) {
+      // Check for promotion
+      if ((piece.isWhite && oneStep < 8) || (!piece.isWhite && oneStep >= 56)) {
+        // Promotion to Queen, Rook, Bishop, Knight
+        for (final promotion in [
+          PieceType.queen,
+          PieceType.rook,
+          PieceType.bishop,
+          PieceType.knight
+        ]) {
+          moves.add(Move(
+            from: from,
+            to: oneStep,
+            promotion: promotion,
+          ));
+        }
+      } else {
+        moves.add(Move(from: from, to: oneStep));
+      }
+
+      // Double step from starting position
+      if (from >= startRank && from < startRank + 8) {
+        final twoSteps = from + direction * 2;
+        if (board.getPiece(twoSteps) == null) {
+          moves.add(Move(from: from, to: twoSteps));
+        }
+      }
+    }
+
+    // Captures (diagonal)
+    for (final captureDir in [direction - 1, direction + 1]) {
+      final captureSquare = from + captureDir;
+      if (_isValidSquare(captureSquare) && _isValidDiagonalMove(from, captureSquare)) {
+        final target = board.getPiece(captureSquare);
+        if (target != null && target.isWhite != piece.isWhite) {
+          if ((piece.isWhite && captureSquare < 8) ||
+              (!piece.isWhite && captureSquare >= 56)) {
+            // Promotion
+            for (final promotion in [
+              PieceType.queen,
+              PieceType.rook,
+              PieceType.bishop,
+              PieceType.knight
+            ]) {
+              moves.add(Move(
+                from: from,
+                to: captureSquare,
+                promotion: promotion,
+                isCapture: true,
+              ));
+            }
+          } else {
+            moves.add(Move(
+              from: from,
+              to: captureSquare,
+              isCapture: true,
+            ));
+          }
+        }
+      }
+    }
+
+    return moves;
   }
 
   List<Move> _generateKnightMoves(Square from, Piece piece) {
-    // TODO: Implement knight movement logic
-    return [];
+    final moves = <Move>[];
+    final knightOffsets = [
+      -17, -15, -10, -6, 6, 10, 15, 17,
+    ];
+
+    for (final offset in knightOffsets) {
+      final to = from + offset;
+      if (_isValidSquare(to) && _isValidKnightMove(from, to)) {
+        final target = board.getPiece(to);
+        if (target == null || target.isWhite != piece.isWhite) {
+          moves.add(Move(
+            from: from,
+            to: to,
+            isCapture: target != null,
+          ));
+        }
+      }
+    }
+
+    return moves;
   }
 
   List<Move> _generateBishopMoves(Square from, Piece piece) {
-    // TODO: Implement bishop movement logic
-    return [];
+    final moves = <Move>[];
+    final directions = [-9, -7, 7, 9]; // Diagonal directions
+
+    for (final direction in directions) {
+      var to = from + direction;
+      while (_isValidSquare(to) && _isValidDiagonalMove(from, to)) {
+        final target = board.getPiece(to);
+        if (target == null) {
+          moves.add(Move(from: from, to: to));
+        } else {
+          if (target.isWhite != piece.isWhite) {
+            moves.add(Move(from: from, to: to, isCapture: true));
+          }
+          break; // Can't move through pieces
+        }
+        to += direction;
+      }
+    }
+
+    return moves;
   }
 
   List<Move> _generateRookMoves(Square from, Piece piece) {
-    // TODO: Implement rook movement logic
-    return [];
+    final moves = <Move>[];
+    final directions = [-8, -1, 1, 8]; // Vertical and horizontal
+
+    for (final direction in directions) {
+      var to = from + direction;
+      while (_isValidSquare(to) && _isSameFileOrRank(from, to)) {
+        final target = board.getPiece(to);
+        if (target == null) {
+          moves.add(Move(from: from, to: to));
+        } else {
+          if (target.isWhite != piece.isWhite) {
+            moves.add(Move(from: from, to: to, isCapture: true));
+          }
+          break;
+        }
+        to += direction;
+      }
+    }
+
+    return moves;
   }
 
   List<Move> _generateQueenMoves(Square from, Piece piece) {
-    // TODO: Implement queen movement logic
-    return [];
+    final moves = <Move>[];
+    // Queen = Rook + Bishop
+    moves.addAll(_generateRookMoves(from, piece));
+    moves.addAll(_generateBishopMoves(from, piece));
+    return moves;
   }
 
   List<Move> _generateKingMoves(Square from, Piece piece) {
-    // TODO: Implement king movement logic
-    return [];
+    final moves = <Move>[];
+    final directions = [-9, -8, -7, -1, 1, 7, 8, 9]; // All 8 directions
+
+    for (final direction in directions) {
+      final to = from + direction;
+      if (_isValidSquare(to) && _isAdjacentSquare(from, to)) {
+        final target = board.getPiece(to);
+        if (target == null || target.isWhite != piece.isWhite) {
+          moves.add(Move(
+            from: from,
+            to: to,
+            isCapture: target != null,
+          ));
+        }
+      }
+    }
+
+    // TODO: Add castling logic
+
+    return moves;
+  }
+
+  // Helper methods for move validation
+
+  bool _isValidSquare(Square square) {
+    return square >= 0 && square < 64;
+  }
+
+  bool _isValidDiagonalMove(Square from, Square to) {
+    final fromFile = from % 8;
+    final fromRank = from ~/ 8;
+    final toFile = to % 8;
+    final toRank = to ~/ 8;
+    return (fromFile - toFile).abs() == (fromRank - toRank).abs();
+  }
+
+  bool _isSameFileOrRank(Square from, Square to) {
+    return (from % 8 == to % 8) || (from ~/ 8 == to ~/ 8);
+  }
+
+  bool _isValidKnightMove(Square from, Square to) {
+    final fromFile = from % 8;
+    final fromRank = from ~/ 8;
+    final toFile = to % 8;
+    final toRank = to ~/ 8;
+
+    final fileDiff = (fromFile - toFile).abs();
+    final rankDiff = (fromRank - toRank).abs();
+
+    return (fileDiff == 2 && rankDiff == 1) || (fileDiff == 1 && rankDiff == 2);
+  }
+
+  bool _isAdjacentSquare(Square from, Square to) {
+    final fromFile = from % 8;
+    final fromRank = from ~/ 8;
+    final toFile = to % 8;
+    final toRank = to ~/ 8;
+
+    return (fromFile - toFile).abs() <= 1 && (fromRank - toRank).abs() <= 1;
   }
 }
 

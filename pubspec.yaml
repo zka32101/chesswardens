@@ -1,0 +1,54 @@
+name: chesswardens
+description: "チェスの駒に和風妖怪・神獣の魂を宿し、固有スキルで戦う育成×AI対戦チェス。"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.4.4
+  firebase_core: ^3.5.0
+  cloud_firestore: ^5.5.0
+  firebase_auth: ^5.5.4
+  firebase_analytics: ^12.1.3
+  firebase_crashlytics: ^4.1.3
+  firebase_remote_config: ^5.1.3
+  revenuecat_flutter: ^9.5.0
+  lottie: ^3.1.0
+  google_fonts: ^6.2.1
+  uuid: ^4.0.0
+  intl: ^0.20.0
+  shared_preferences: ^2.3.0
+  cross_promo_kit:
+    git:
+      url: https://github.com/zka32101/cross_promo_kit.git
+      ref: main
+  shared_core:
+    git:
+      url: https://github.com/zka32101/shared_core.git
+      ref: main
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.0
+  riverpod_generator: ^2.4.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/
+    - assets/images/
+    - assets/sounds/
+  fonts:
+    - family: NotoSansJP
+      fonts:
+        - asset: assets/fonts/NotoSansJP-Regular.ttf
+        - asset: assets/fonts/NotoSansJP-Bold.ttf
+          weight: 700

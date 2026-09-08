@@ -1,14 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../viewmodels/index.dart';
 import 'match_screen.dart';
+import 'onboarding_screen.dart';
 
 /// Home screen - main entry point after login
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _showOnboarding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboarding();
+  }
+
+  Future<void> _checkOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    final completed = prefs.getBool('onboarding_completed') ?? false;
+
+    if (!completed && mounted) {
+      setState(() => _showOnboarding = true);
+      // Show onboarding as a modal
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => OnboardingScreen(
+              onComplete: () {
+                setState(() => _showOnboarding = false);
+              },
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final userWardens = ref.watch(userWardensProvider);
     final selectedDifficulty = ref.watch(selectedAIDifficultyProvider);
 

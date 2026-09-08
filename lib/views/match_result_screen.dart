@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/index.dart';
 import '../services/skill_animation_service.dart';
 import '../viewmodels/index.dart';
+import 'share_card_screen.dart';
 
 /// Match result screen - Shows battle results and rewards
 class MatchResultScreen extends ConsumerStatefulWidget {
@@ -303,10 +304,16 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('シェア機能は近日実装予定です'),
-                    duration: Duration(seconds: 2),
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ShareCardScreen(
+                      result: widget.result,
+                      playerScore: widget.playerScore,
+                      aiScore: widget.aiScore,
+                      skillTriggeredCount: widget.skillTriggeredCount,
+                      playerWardenIds: widget.playerWardenIds,
+                      aiDifficulty: widget.aiDifficulty,
+                    ),
                   ),
                 );
               },

@@ -1,0 +1,162 @@
+{
+  "parameterGroups": {
+    "ai_difficulty": {
+      "description": "AI difficulty level configuration",
+      "parameters": {
+        "ai_depth_easy": {
+          "description": "Easy mode minimax depth",
+          "type": "INT",
+          "defaultValue": {
+            "value": "1"
+          }
+        },
+        "ai_depth_normal": {
+          "description": "Normal mode minimax depth",
+          "type": "INT",
+          "defaultValue": {
+            "value": "2"
+          }
+        },
+        "ai_depth_hard": {
+          "description": "Hard mode minimax depth",
+          "type": "INT",
+          "defaultValue": {
+            "value": "3"
+          }
+        },
+        "ai_depth_very_hard": {
+          "description": "Very Hard mode minimax depth",
+          "type": "INT",
+          "defaultValue": {
+            "value": "3"
+          }
+        }
+      }
+    },
+    "warden_progression": {
+      "description": "Warden leveling and experience progression",
+      "parameters": {
+        "exp_per_win": {
+          "description": "Experience gained per match win",
+          "type": "INT",
+          "defaultValue": {
+            "value": "100"
+          }
+        },
+        "exp_per_loss": {
+          "description": "Experience gained per match loss",
+          "type": "INT",
+          "defaultValue": {
+            "value": "50"
+          }
+        },
+        "exp_per_skill_trigger": {
+          "description": "Experience bonus per skill trigger",
+          "type": "INT",
+          "defaultValue": {
+            "value": "10"
+          }
+        },
+        "base_level_cap": {
+          "description": "Maximum warden level",
+          "type": "INT",
+          "defaultValue": {
+            "value": "10"
+          }
+        }
+      }
+    },
+    "app_settings": {
+      "description": "General app configuration",
+      "parameters": {
+        "min_supported_version": {
+          "description": "Minimum app version required (e.g., 1.0.0)",
+          "type": "STRING",
+          "defaultValue": {
+            "value": "1.0.0"
+          }
+        },
+        "maintenance_mode": {
+          "description": "Set to true to show maintenance message",
+          "type": "BOOLEAN",
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "maintenance_message": {
+          "description": "Message shown during maintenance",
+          "type": "STRING",
+          "defaultValue": {
+            "value": "App is under maintenance. Please try again later."
+          }
+        },
+        "analytics_enabled": {
+          "description": "Enable/disable Firebase Analytics",
+          "type": "BOOLEAN",
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "crashlytics_enabled": {
+          "description": "Enable/disable Firebase Crashlytics",
+          "type": "BOOLEAN",
+          "defaultValue": {
+            "value": "true"
+          }
+        }
+      }
+    },
+    "liveops": {
+      "description": "LiveOps feature flags",
+      "parameters": {
+        "seasonal_wardens_enabled": {
+          "description": "Enable seasonal warden availability",
+          "type": "BOOLEAN",
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "current_season": {
+          "description": "Current active season (e.g., winter, summer, autumn, spring)",
+          "type": "STRING",
+          "defaultValue": {
+            "value": "summer"
+          }
+        },
+        "battle_pass_enabled": {
+          "description": "Enable battle pass system",
+          "type": "BOOLEAN",
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
+    },
+    "monetization": {
+      "description": "Monetization and pricing",
+      "parameters": {
+        "cosmetic_skins_enabled": {
+          "description": "Enable cosmetic skins shop",
+          "type": "BOOLEAN",
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "ad_frequency": {
+          "description": "Rewarded ad frequency (minutes between shows)",
+          "type": "INT",
+          "defaultValue": {
+            "value": "15"
+          }
+        },
+        "premium_price_usd": {
+          "description": "Premium subscription price in USD",
+          "type": "STRING",
+          "defaultValue": {
+            "value": "4.99"
+          }
+        }
+      }
+    }
+  }
+}

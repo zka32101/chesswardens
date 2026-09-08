@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isValidUserData() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['uid', 'createdAt']) &&
+             data.uid == request.auth.uid;
+    }
+
+    function isValidWarden() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['uid', 'wardenId', 'level', 'exp', 'unlockedAt']) &&
+             data.level > 0 && data.level <= 10 &&
+             data.exp >= 0 &&
+             data.uid == request.auth.uid;
+    }
+
+    function isValidMatchLog() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['uid', 'aiDifficulty', 'result', 'skillTriggeredCount', 'playerScore', 'aiScore', 'movesPlayed', 'playedAt']) &&
+             data.skillTriggeredCount >= 0 &&
+             data.playerScore >= 0 &&
+             data.aiScore >= 0 &&
+             data.movesPlayed >= 0 &&
+             data.uid == request.auth.uid;
+    }
+
+    // User documents (public metadata only)
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId) && isValidUserData();
+      allow update: if isOwner(userId) && request.resource.data.uid == userId;
+      allow delete: if isOwner(userId);
+
+      // User's wardens (private)
+      match /wardens/{wardenId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidWarden();
+        allow update: if isOwner(userId) && isValidWarden();
+        allow delete: if isOwner(userId);
+      }
+
+      // User's match logs (private)
+      match /matchLogs/{matchLogId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidMatchLog();
+        allow update: if isOwner(userId) && isValidMatchLog();
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // Share cards (public leaderboard)
+    match /shareCards/{cardId} {
+      allow read: if true; // Public viewing
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['uid', 'matchLogId', 'imageUrl', 'createdAt']);
+      allow update: if isOwner(request.resource.data.uid) &&
+                       request.resource.data.uid == resource.data.uid;
+      allow delete: if isOwner(resource.data.uid);
+
+      // Prevent unauth access to uid field in queries
+      allow list: if true;
+    }
+
+    // Catch-all deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

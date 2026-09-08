@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/index.dart';
 import '../viewmodels/index.dart';
 import 'match_screen.dart';
 import 'onboarding_screen.dart';
+import 'warden_growth_screen.dart';
 
 /// Home screen - main entry point after login
 class HomeScreen extends ConsumerStatefulWidget {
@@ -96,30 +98,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           final warden = wardens[index];
-                          return Card(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  warden.level.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
+                          final allWardens = ref.watch(mvpWardensProvider);
+                          final wardenDef = allWardens.firstWhere(
+                            (w) => w.id == warden.wardenId,
+                            orElse: () => allWardens.first,
+                          );
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => WardenGrowthScreen(
+                                    userWarden: warden,
+                                    wardenDefinition: wardenDef,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Lv.${warden.level}',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                const SizedBox(height: 8),
-                                LinearProgressIndicator(
-                                  value: warden.exp /
-                                      warden.expRequiredForNextLevel(
-                                        warden.level,
-                                      ),
-                                ),
-                              ],
+                              );
+                            },
+                            child: Card(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    warden.level.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Lv.${warden.level}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  LinearProgressIndicator(
+                                    value: warden.exp /
+                                        warden.expRequiredForNextLevel(
+                                          warden.level,
+                                        ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },

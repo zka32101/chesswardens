@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/index.dart';
 import '../services/chess_engine_service.dart';
+import '../services/skill_animation_service.dart';
 import '../viewmodels/index.dart';
+import 'widgets/skill_animation_overlay.dart';
 
 /// Match screen - Main battle interface
 class MatchScreen extends ConsumerStatefulWidget {
@@ -25,6 +27,9 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
   Square? selectedSquare;
   List<Move> legalMoves = [];
   bool isProcessing = false;
+  SkillEffectType? displayingSkillAnimation;
+  String? displayingWardenName;
+  String? displayingSkillName;
 
   @override
   void initState() {
@@ -58,8 +63,10 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
         title: const Text('Battle'),
         elevation: 0,
       ),
-      body: Column(
+      body: Stack(
         children: [
+          Column(
+            children: [
           // AI Status Bar
           Container(
             padding: const EdgeInsets.all(12),
@@ -118,6 +125,22 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
               ],
             ),
           ),
+            ],
+          ),
+          // Skill Animation Overlay
+          if (displayingSkillAnimation != null)
+            SkillAnimationDisplay(
+              effectType: displayingSkillAnimation!,
+              wardenName: displayingWardenName ?? 'Warden',
+              skillName: displayingSkillName ?? 'Skill',
+              onAnimationComplete: () {
+                setState(() {
+                  displayingSkillAnimation = null;
+                  displayingWardenName = null;
+                  displayingSkillName = null;
+                });
+              },
+            ),
         ],
       ),
     );
@@ -224,6 +247,34 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
       selectedSquare = null;
       legalMoves = [];
     });
+
+    // Check if skill was triggered and show animation
+    if (move.isCapture) {
+      final allSkills = ref.read(mvpSkillsProvider);
+      final randomSkill = allSkills.isNotEmpty
+          ? allSkills[DateTime.now().millisecond % allSkills.length]
+          : null;
+
+      if (randomSkill != null) {
+        final playerWarden = ref.read(userWardensProvider).maybeWhen(
+          data: (wardens) => wardens.isNotEmpty ? wardens.first : null,
+          orElse: () => null,
+        );
+
+        if (playerWarden != null) {
+          setState(() {
+            displayingSkillAnimation = randomSkill.effectType;
+            displayingWardenName = playerWarden.wardenId;
+            displayingSkillName = randomSkill.name;
+          });
+
+          // Wait for animation to complete
+          await Future.delayed(
+            SkillAnimationService.getAnimationDuration(randomSkill.effectType),
+          );
+        }
+      }
+    }
 
     // Wait a bit, then let AI move
     await Future.delayed(const Duration(milliseconds: 500));

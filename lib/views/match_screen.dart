@@ -30,10 +30,12 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
   SkillEffectType? displayingSkillAnimation;
   String? displayingWardenName;
   String? displayingSkillName;
+  late DateTime _matchStartTime;
 
   @override
   void initState() {
     super.initState();
+    _matchStartTime = DateTime.now();
     _initializeMatch();
   }
 
@@ -248,6 +250,13 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
       legalMoves = [];
     });
 
+    // Check for game over after player move
+    var gameState = ref.read(gameStateProvider);
+    if (gameState != null && mounted) {
+      await _checkGameOver(gameState);
+      if (!mounted) return; // Navigation occurred
+    }
+
     // Check if skill was triggered and show animation
     if (move.isCapture) {
       final allSkills = ref.read(mvpSkillsProvider);
@@ -281,6 +290,12 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
 
     if (mounted && ref.read(gameStateProvider) != null) {
       await ref.read(gameStateProvider.notifier).makeAIMove();
+
+      // Check for game over after AI move
+      final gameState = ref.read(gameStateProvider);
+      if (gameState != null && mounted) {
+        await _checkGameOver(gameState);
+      }
     }
 
     setState(() => isProcessing = false);
@@ -311,5 +326,49 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
     }
 
     return baseSymbol;
+  }
+
+  Future<void> _checkGameOver(GameState gameState) async {
+    final engine = ChessEngineService(initialBoard: gameState.board);
+    final legalMoves = engine.generateLegalMoves(gameState.isPlayerTurn);
+
+    if (legalMoves.isEmpty) {
+      // No legal moves - game over
+      final matchDuration = DateTime.now().difference(_matchStartTime);
+
+      // Simplified result calculation
+      int playerScore = gameState.board.board
+          .whereType<Piece>()
+          .where((p) => p.isWhite)
+          .fold(0, (sum, p) => sum + (p.type == PieceType.king ? 10 : 1));
+
+      int aiScore = gameState.board.board
+          .whereType<Piece>()
+          .where((p) => !p.isWhite)
+          .fold(0, (sum, p) => sum + (p.type == PieceType.king ? 10 : 1));
+
+      final result = playerScore > aiScore
+          ? MatchResult.win
+          : playerScore < aiScore
+              ? MatchResult.loss
+              : MatchResult.draw;
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => MatchResultScreen(
+              result: result,
+              playerScore: playerScore,
+              aiScore: aiScore,
+              skillTriggeredCount: gameState.skillTriggeredCount,
+              movesPlayed: gameState.moveHistory.length,
+              matchDuration: matchDuration,
+              aiDifficulty: widget.aiDifficulty,
+              playerWardenIds: widget.playerWardenIds,
+            ),
+          ),
+        );
+      }
+    }
   }
 }

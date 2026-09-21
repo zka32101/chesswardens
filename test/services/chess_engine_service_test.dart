@@ -53,8 +53,10 @@ void main() {
       expect(pawnMoves.isNotEmpty, true);
 
       // Each pawn should be able to move 1 or 2 squares forward
+      // (White pawns start at squares 8-15 and advance toward rank 8,
+      // i.e. increasing square index — see Board.initializeStandardPosition)
       expect(
-        pawnMoves.every((m) => (m.to == m.from - 8 || m.to == m.from - 16)),
+        pawnMoves.every((m) => (m.to == m.from + 8 || m.to == m.from + 16)),
         true,
       );
     });

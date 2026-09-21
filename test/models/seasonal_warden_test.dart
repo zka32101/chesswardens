@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chesswardens/models/index.dart';
+import 'package:chesswardens/services/index.dart';
 
 void main() {
   group('Seasonal Wardens (Phase 4 LiveOps)', () {

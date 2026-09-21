@@ -4,6 +4,7 @@ import '../models/index.dart';
 import '../services/chess_engine_service.dart';
 import '../services/skill_animation_service.dart';
 import '../viewmodels/index.dart';
+import 'match_result_screen.dart';
 import 'widgets/skill_animation_overlay.dart';
 
 /// Match screen - Main battle interface
@@ -337,12 +338,12 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
       final matchDuration = DateTime.now().difference(_matchStartTime);
 
       // Simplified result calculation
-      int playerScore = gameState.board.board
+      int playerScore = gameState.board.squares
           .whereType<Piece>()
           .where((p) => p.isWhite)
           .fold(0, (sum, p) => sum + (p.type == PieceType.king ? 10 : 1));
 
-      int aiScore = gameState.board.board
+      int aiScore = gameState.board.squares
           .whereType<Piece>()
           .where((p) => !p.isWhite)
           .fold(0, (sum, p) => sum + (p.type == PieceType.king ? 10 : 1));

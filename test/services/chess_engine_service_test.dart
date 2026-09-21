@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:chesswardens/services/chess_engine_service.dart';
+import 'package:chesswardens/services/skill_evaluation_service.dart';
 import 'package:chesswardens/models/index.dart';
 
 void main() {

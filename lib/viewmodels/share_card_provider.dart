@@ -17,7 +17,8 @@ class ShareCardNotifier extends StateNotifier<List<ShareCard>> {
   final FirestoreService _firestoreService = FirestoreService();
   final String uid;
 
-  ShareCardNotifier(this.uid, this.state);
+  ShareCardNotifier(this.uid, List<ShareCard> initialState)
+      : super(initialState);
 
   /// Create and share a match result
   Future<String> createShareCard(

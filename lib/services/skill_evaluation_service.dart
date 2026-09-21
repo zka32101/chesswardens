@@ -48,6 +48,18 @@ class SkillEvaluationService {
       case SkillEffectType.jumpMove:
         // Extra mobility bonus (tactical advantage)
         return baseValue * 40;
+
+      case SkillEffectType.freeze:
+        // Denying an enemy turn is highly disruptive
+        return baseValue * 120;
+
+      case SkillEffectType.drain:
+        // Sustain bonus from lifesteal-style healing
+        return baseValue * 25;
+
+      case SkillEffectType.luck:
+        // Temporary attack buff
+        return baseValue * 20;
     }
   }
 

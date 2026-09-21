@@ -13,6 +13,9 @@ class Warden {
   final int baseAttack;
   final int baseDefense;
 
+  /// 季節限定Wardenの場合の解放シーズン（MVP4体はnull=通年）
+  final Season? season;
+
   const Warden({
     required this.id,
     required this.name,
@@ -23,7 +26,10 @@ class Warden {
     required this.baseHp,
     required this.baseAttack,
     required this.baseDefense,
+    this.season,
   });
+
+  bool get isSeasonal => season != null;
 
   factory Warden.oniKing() {
     return const Warden(
@@ -81,6 +87,54 @@ class Warden {
     );
   }
 
+  /// 雪女。冬季限定。攻撃成功時に敵を凍結し行動を封じる。
+  factory Warden.yukionna() {
+    return const Warden(
+      id: 'warden_yukionna',
+      name: 'Yuki-onna',
+      japaneseeName: '雪女',
+      description: '雪山に住まう妖。攻撃成功時に敵駒を凍結し次ターンの行動を封じる。',
+      baseType: PieceType.bishop,
+      skillId: 'skill_freeze',
+      baseHp: 75,
+      baseAttack: 65,
+      baseDefense: 65,
+      season: Season.winter,
+    );
+  }
+
+  /// 河童。夏季限定。攻撃成功時に与ダメージの一部を自身のHPに変換する。
+  factory Warden.kappa() {
+    return const Warden(
+      id: 'warden_kappa',
+      name: 'Kappa',
+      japaneseeName: '河童',
+      description: '川辺に住まう妖怪。攻撃成功時に相手の生命力を吸収し自らを回復する。',
+      baseType: PieceType.pawn,
+      skillId: 'skill_drain',
+      baseHp: 65,
+      baseAttack: 55,
+      baseDefense: 55,
+      season: Season.summer,
+    );
+  }
+
+  /// 座敷童。通年入手可能な幸運の神獣。ターン開始時に攻撃力上昇。
+  factory Warden.zashikiWarashi() {
+    return const Warden(
+      id: 'warden_zashiki_warashi',
+      name: 'Zashiki-warashi',
+      japaneseeName: '座敷童',
+      description: '家に福をもたらす童。ターン開始時に幸運が宿り攻撃力が一時的に上昇する。',
+      baseType: PieceType.pawn,
+      skillId: 'skill_luck',
+      baseHp: 60,
+      baseAttack: 50,
+      baseDefense: 50,
+      season: Season.yearRound,
+    );
+  }
+
   /// Get all MVP wardens
   static List<Warden> mvpWardens() {
     return [
@@ -89,6 +143,20 @@ class Warden {
       Warden.orochi(),
       Warden.tengu(),
     ];
+  }
+
+  /// Get all seasonal (Phase 4 LiveOps) wardens
+  static List<Warden> seasonalWardens() {
+    return [
+      Warden.yukionna(),
+      Warden.kappa(),
+      Warden.zashikiWarashi(),
+    ];
+  }
+
+  /// Get every warden defined in the game (MVP + seasonal)
+  static List<Warden> allWardens() {
+    return [...mvpWardens(), ...seasonalWardens()];
   }
 }
 

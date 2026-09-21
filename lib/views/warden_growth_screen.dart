@@ -402,7 +402,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
           const SizedBox(height: 8),
           _DetailRow(
             label: 'タイプ',
-            value: widget.wardenDefinition.baseType,
+            value: widget.wardenDefinition.baseType.englishName,
           ),
           const SizedBox(height: 8),
           _DetailRow(

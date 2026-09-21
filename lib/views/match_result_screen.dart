@@ -1,8 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../models/index.dart';
-import '../services/skill_animation_service.dart';
 import '../viewmodels/index.dart';
 import 'share_card_screen.dart';
 
@@ -489,5 +489,3 @@ class _ConfettiAnimation extends StatelessWidget {
     );
   }
 }
-
-import 'dart:math' as math;

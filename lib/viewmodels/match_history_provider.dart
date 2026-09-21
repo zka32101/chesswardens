@@ -17,7 +17,8 @@ class MatchHistoryNotifier extends StateNotifier<List<MatchLog>> {
   final FirestoreService _firestoreService = FirestoreService();
   final String uid;
 
-  MatchHistoryNotifier(this.uid, this.state);
+  MatchHistoryNotifier(this.uid, List<MatchLog> initialState)
+      : super(initialState);
 
   /// Add a new match to history
   Future<String> recordMatch(

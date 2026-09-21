@@ -37,7 +37,8 @@ class UserWardenNotifier extends StateNotifier<List<UserWarden>> {
   final FirestoreService _firestoreService = FirestoreService();
   final String uid;
 
-  UserWardenNotifier(this.uid, this.state);
+  UserWardenNotifier(this.uid, List<UserWarden> initialState)
+      : super(initialState);
 
   Future<void> updateWarden(UserWarden userWarden) async {
     await _firestoreService.updateUserWarden(uid, userWarden);

@@ -369,14 +369,14 @@ class ChessEngineService {
 
   List<Move> _generatePawnMoves(Square from, Piece piece) {
     final moves = <Move>[];
-    final direction = piece.isWhite ? -8 : 8; // White moves up (decreasing rank)
-    final startRank = piece.isWhite ? 48 : 8; // Rank 2 or 7
+    final direction = piece.isWhite ? 8 : -8; // White moves toward rank 8 (increasing index)
+    final startRank = piece.isWhite ? 8 : 48; // Rank 2 or 7
 
     // Single step forward
     final oneStep = from + direction;
     if (_isValidSquare(oneStep) && board.getPiece(oneStep) == null) {
       // Check for promotion
-      if ((piece.isWhite && oneStep < 8) || (!piece.isWhite && oneStep >= 56)) {
+      if ((piece.isWhite && oneStep >= 56) || (!piece.isWhite && oneStep < 8)) {
         // Promotion to Queen, Rook, Bishop, Knight
         for (final promotion in [
           PieceType.queen,
@@ -409,8 +409,8 @@ class ChessEngineService {
       if (_isValidSquare(captureSquare) && _isValidDiagonalMove(from, captureSquare)) {
         final target = board.getPiece(captureSquare);
         if (target != null && target.isWhite != piece.isWhite) {
-          if ((piece.isWhite && captureSquare < 8) ||
-              (!piece.isWhite && captureSquare >= 56)) {
+          if ((piece.isWhite && captureSquare >= 56) ||
+              (!piece.isWhite && captureSquare < 8)) {
             // Promotion
             for (final promotion in [
               PieceType.queen,
@@ -580,9 +580,12 @@ class ChessEngineService {
 }
 
 /// Convert square index to algebraic notation (a1 - h8)
+///
+/// Square 0 holds White's back rank (rank 1), square 63 holds Black's
+/// back rank (rank 8) — see [Board.initializeStandardPosition].
 String squareToAlgebraic(Square square) {
   final file = String.fromCharCode(97 + (square % 8)); // a-h
-  final rank = '${8 - (square ~/ 8)}'; // 1-8
+  final rank = '${(square ~/ 8) + 1}'; // 1-8
   return '$file$rank';
 }
 
@@ -594,5 +597,5 @@ Square? algebraicToSquare(String notation) {
   if (file < 0 || file >= 8 || rank == null || rank < 1 || rank > 8) {
     return null;
   }
-  return (8 - rank) * 8 + file;
+  return (rank - 1) * 8 + file;
 }

@@ -7,6 +7,10 @@ class SkillAnimationService {
     SkillEffectType.spreadDamage: 'assets/animations/skill_spread_damage.json',
     SkillEffectType.shieldTurns: 'assets/animations/skill_shield_turns.json',
     SkillEffectType.jumpMove: 'assets/animations/skill_jump_move.json',
+    // Phase 4 LiveOps: 専用Lottieアセット未作成のため既存アセットを暫定流用
+    SkillEffectType.freeze: 'assets/animations/skill_shield_turns.json',
+    SkillEffectType.drain: 'assets/animations/skill_spread_damage.json',
+    SkillEffectType.luck: 'assets/animations/skill_jump_move.json',
   };
 
   /// Duration in milliseconds for each skill animation
@@ -16,6 +20,9 @@ class SkillAnimationService {
     SkillEffectType.spreadDamage: Duration(milliseconds: 1000), // 30 frames @ 30fps
     SkillEffectType.shieldTurns: Duration(milliseconds: 1200), // 36 frames @ 30fps
     SkillEffectType.jumpMove: Duration(milliseconds: 1000), // 30 frames @ 30fps
+    SkillEffectType.freeze: Duration(milliseconds: 1200),
+    SkillEffectType.drain: Duration(milliseconds: 1000),
+    SkillEffectType.luck: Duration(milliseconds: 800),
   };
 
   /// Get the Lottie animation asset path for a skill effect
@@ -39,6 +46,12 @@ class SkillAnimationService {
         return 'Blue shield forms to protect from damage';
       case SkillEffectType.jumpMove:
         return 'Swift jump with purple-blue arc trail';
+      case SkillEffectType.freeze:
+        return 'Enemy piece encased in ice, unable to act';
+      case SkillEffectType.drain:
+        return 'Life force drained in green waves back to the caster';
+      case SkillEffectType.luck:
+        return 'Golden sparkles boost attack power briefly';
     }
   }
 }

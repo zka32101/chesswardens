@@ -94,6 +94,50 @@ class SkillDefinition {
     );
   }
 
+  /// 雪女の凍結スキル（攻撃成功時、敵の次ターン行動を一時封じる）
+  factory SkillDefinition.freeze() {
+    return const SkillDefinition(
+      id: 'skill_freeze',
+      name: 'Freeze',
+      japaneseeName: '凍結',
+      description: '攻撃成功時、対象の駒を1ターン凍結し行動を封じる。',
+      effectType: SkillEffectType.freeze,
+      triggerCondition: SkillTriggerCondition.onAttackSuccess,
+      triggerRateByLevel: [0.4, 0.5, 0.6, 0.7],
+      valueByLevel: [1, 1, 2, 2],                // Freeze duration in turns
+      durationTurns: 1,
+    );
+  }
+
+  /// 河童の吸収スキル（攻撃成功時、与えたダメージの一部を自身のHPに変換）
+  factory SkillDefinition.drain() {
+    return const SkillDefinition(
+      id: 'skill_drain',
+      name: 'Drain',
+      japaneseeName: '吸収',
+      description: '攻撃成功時、与ダメージの一部を吸収し自身のHPを回復する。',
+      effectType: SkillEffectType.drain,
+      triggerCondition: SkillTriggerCondition.onAttackSuccess,
+      triggerRateByLevel: [0.5, 0.6, 0.7, 0.8],
+      valueByLevel: [15, 20, 25, 30],             // HP recovered
+    );
+  }
+
+  /// 座敷童の幸運スキル（ターン開始時、追加ダメージ/追加行動のチャンスを付与）
+  factory SkillDefinition.luck() {
+    return const SkillDefinition(
+      id: 'skill_luck',
+      name: 'Luck',
+      japaneseeName: '幸運',
+      description: 'ターン開始時、幸運が宿り攻撃力が一時的に上昇する。',
+      effectType: SkillEffectType.luck,
+      triggerCondition: SkillTriggerCondition.onTurnStart,
+      triggerRateByLevel: [0.3, 0.4, 0.5, 0.6],
+      valueByLevel: [10, 15, 20, 25],             // Attack bonus
+      durationTurns: 1,
+    );
+  }
+
   /// Get all MVP skill definitions
   static List<SkillDefinition> mvpSkills() {
     return [
@@ -101,6 +145,15 @@ class SkillDefinition {
       SkillDefinition.spreadDamage(),
       SkillDefinition.shieldTurns(),
       SkillDefinition.jumpMove(),
+    ];
+  }
+
+  /// Get seasonal (Phase 4 LiveOps) skill definitions
+  static List<SkillDefinition> seasonalSkills() {
+    return [
+      SkillDefinition.freeze(),
+      SkillDefinition.drain(),
+      SkillDefinition.luck(),
     ];
   }
 

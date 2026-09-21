@@ -32,10 +32,24 @@ enum SkillEffectType {
   immortality('不死'),           // Oni King
   spreadDamage('炎ダメージ拡散'),  // Kitsune
   shieldTurns('鉄壁'),           // Orochi
-  jumpMove('追加ジャンプ');       // Tengu
+  jumpMove('追加ジャンプ'),       // Tengu
+  freeze('凍結'),                // Yuki-onna (seasonal)
+  drain('吸収'),                 // Kappa (seasonal)
+  luck('幸運');                  // Zashiki-warashi (seasonal)
 
   const SkillEffectType(this.label);
   final String label;
+}
+
+/// Seasonal availability window for LiveOps wardens
+enum Season {
+  winter('冬', '雪女'),
+  summer('夏', '河童'),
+  yearRound('通年', '座敷童');
+
+  const Season(this.label, this.representativeWarden);
+  final String label;
+  final String representativeWarden;
 }
 
 /// Match result

@@ -89,13 +89,12 @@ lib/
   - [x] ANIMATIONS.md（Lottieアニメーション仕様）
   - [x] analytics_events.md（アナリティクスイベント定義）
 
-### Phase 4: LiveOps ❌ FUTURE
-- [ ] 季節限定Warden追加
-  - [ ] 雪女（Bishop、冬限定）
-  - [ ] 河童（Bishop、夏限定）
-  - [ ] 座敷童（Pawn、初心者救済）
-  - など
-- [ ] RevenueCat 統合（コスメ課金）
+### Phase 4: LiveOps 🚧 IN PROGRESS
+- [x] 季節限定Warden追加
+  - [x] 雪女（Bishop、冬限定、凍結スキル）
+  - [x] 河童（Pawn、夏限定、吸収スキル）
+  - [x] 座敷童（Pawn、通年、幸運スキル）
+- [ ] RevenueCat 統合（コスメ課金）— API キー等の設定確認待ち
 
 ---
 

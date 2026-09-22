@@ -1,4 +1,3 @@
-import 'package:uuid/uuid.dart';
 import 'enums.dart';
 
 /// 妖怪・神獣マスター定義（レベル依存なし、スキル定義は SkillDefinition で管理）

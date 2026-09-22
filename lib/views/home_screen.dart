@@ -16,8 +16,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _showOnboarding = false;
-
   @override
   void initState() {
     super.initState();
@@ -29,19 +27,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final completed = prefs.getBool('onboarding_completed') ?? false;
 
     if (!completed && mounted) {
-      setState(() => _showOnboarding = true);
       // Show onboarding as a modal
-      if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => OnboardingScreen(
-              onComplete: () {
-                setState(() => _showOnboarding = false);
-              },
-            ),
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => OnboardingScreen(
+            onComplete: () {},
           ),
-        );
-      }
+        ),
+      );
     }
   }
 
@@ -153,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                   border: Border(
                     top: BorderSide(
                       color: Theme.of(context).primaryColor,

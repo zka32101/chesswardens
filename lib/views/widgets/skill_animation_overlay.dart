@@ -22,7 +22,6 @@ class SkillAnimationOverlay extends StatefulWidget {
 class _SkillAnimationOverlayState extends State<SkillAnimationOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  bool _isPlaying = true;
 
   @override
   void initState() {
@@ -62,7 +61,7 @@ class _SkillAnimationOverlayState extends State<SkillAnimationOverlay>
             // Fallback if Lottie file not found
             return Container(
               decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.3),
+                color: Colors.purple.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(150),
               ),
               child: Center(
@@ -138,7 +137,7 @@ class _SkillAnimationDisplayState extends State<SkillAnimationDisplay>
         children: [
           // Semi-transparent background
           Container(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
           ),
           // Animation
           SkillAnimationOverlay(
@@ -153,7 +152,7 @@ class _SkillAnimationDisplayState extends State<SkillAnimationDisplay>
             child: Column(
               children: [
                 Text(
-                  '${widget.wardenName}',
+                  widget.wardenName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -166,7 +165,7 @@ class _SkillAnimationDisplayState extends State<SkillAnimationDisplay>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.7),
+                    color: Colors.purple.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(

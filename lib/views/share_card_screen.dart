@@ -29,7 +29,6 @@ class ShareCardScreen extends ConsumerStatefulWidget {
 
 class _ShareCardScreenState extends ConsumerState<ShareCardScreen> {
   late GlobalKey _shareCardKey;
-  bool _isSharing = false;
 
   @override
   void initState() {
@@ -52,10 +51,6 @@ class _ShareCardScreenState extends ConsumerState<ShareCardScreen> {
   }
 
   Future<void> _shareToTwitter() async {
-    final text = _generateShareText();
-    final encodedText = Uri.encodeComponent(text);
-    final twitterUrl = 'https://twitter.com/intent/tweet?text=$encodedText&hashtags=ChessWardens';
-
     try {
       // In a real app, you would use url_launcher package
       // For now, just show a message
@@ -76,10 +71,6 @@ class _ShareCardScreenState extends ConsumerState<ShareCardScreen> {
   }
 
   Future<void> _shareToLine() async {
-    final text = _generateShareText();
-    final encodedText = Uri.encodeComponent(text);
-    final lineUrl = 'https://line.me/R/msg/text/$encodedText';
-
     try {
       // In a real app, you would use url_launcher package
       ScaffoldMessenger.of(context).showSnackBar(
@@ -171,7 +162,7 @@ AIのスコア: ${widget.aiScore}
         ),
         boxShadow: [
           BoxShadow(
-            color: (isWin ? Colors.green : Colors.red).withOpacity(0.2),
+            color: (isWin ? Colors.green : Colors.red).withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -205,7 +196,7 @@ AIのスコア: ${widget.aiScore}
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -240,7 +231,7 @@ AIのスコア: ${widget.aiScore}
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
             ),
             child: GridView.count(
@@ -409,8 +400,8 @@ class _ShareButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          border: Border.all(color: color.withOpacity(0.3)),
+          color: color.withValues(alpha: 0.1),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -452,7 +443,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
+        color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

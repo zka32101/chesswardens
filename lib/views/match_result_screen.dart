@@ -137,8 +137,8 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
           height: 100,
           decoration: BoxDecoration(
             color: isWin
-                ? Colors.green.withOpacity(0.1)
-                : Colors.red.withOpacity(0.1),
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.red.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(50),
           ),
           child: Center(

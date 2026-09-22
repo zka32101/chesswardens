@@ -235,9 +235,11 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
     final success = await ref.read(gameStateProvider.notifier).makePlayerMove(move);
 
     if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid move')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid move')),
+        );
+      }
       setState(() {
         selectedSquare = null;
         legalMoves = [];

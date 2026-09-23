@@ -27,8 +27,9 @@ class MatchHistoryNotifier extends StateNotifier<List<MatchLog>> {
     int skillTriggeredCount,
     int playerScore,
     int aiScore,
-    int movesPlayed,
-  ) async {
+    int movesPlayed, {
+    List<Move> moves = const [],
+  }) async {
     final matchId = await _firestoreService.addMatchLog(
       uid,
       difficulty,
@@ -37,6 +38,7 @@ class MatchHistoryNotifier extends StateNotifier<List<MatchLog>> {
       playerScore,
       aiScore,
       movesPlayed,
+      moves: moves,
     );
 
     // Add to local state
@@ -50,6 +52,7 @@ class MatchHistoryNotifier extends StateNotifier<List<MatchLog>> {
       aiScore: aiScore,
       movesPlayed: movesPlayed,
       playedAt: DateTime.now(),
+      moves: moves,
     );
 
     state = [matchLog, ...state];

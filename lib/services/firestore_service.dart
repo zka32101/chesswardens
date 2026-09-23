@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import '../models/index.dart';
+import 'chess_engine_service.dart' show Move;
 
 /// Firestore database service for Chess Wardens
 class FirestoreService {
@@ -79,8 +80,9 @@ class FirestoreService {
     int skillTriggeredCount,
     int playerScore,
     int aiScore,
-    int movesPlayed,
-  ) async {
+    int movesPlayed, {
+    List<Move> moves = const [],
+  }) async {
     final matchId = _uuid.v4();
     final matchLog = MatchLog(
       id: matchId,
@@ -92,6 +94,7 @@ class FirestoreService {
       aiScore: aiScore,
       movesPlayed: movesPlayed,
       playedAt: DateTime.now(),
+      moves: moves,
     );
 
     await _firestore

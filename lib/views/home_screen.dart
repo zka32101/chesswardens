@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/index.dart';
 import '../viewmodels/index.dart';
+import 'match_history_screen.dart';
 import 'match_screen.dart';
 import 'onboarding_screen.dart';
 import 'warden_growth_screen.dart';
@@ -47,6 +48,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Chess Wardens'),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: '対局履歴・リプレイ',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const MatchHistoryScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: userWardens.when(
         loading: () => const Center(child: CircularProgressIndicator()),

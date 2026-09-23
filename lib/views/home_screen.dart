@@ -5,6 +5,7 @@ import '../models/index.dart';
 import '../viewmodels/index.dart';
 import 'match_screen.dart';
 import 'onboarding_screen.dart';
+import 'warden_collection_screen.dart';
 import 'warden_growth_screen.dart';
 
 /// Home screen - main entry point after login
@@ -47,6 +48,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Chess Wardens'),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu_book),
+            tooltip: 'ワーデン図鑑',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const WardenCollectionScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: userWardens.when(
         loading: () => const Center(child: CircularProgressIndicator()),

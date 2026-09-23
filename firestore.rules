@@ -72,6 +72,32 @@ service cloud.firestore {
       allow list: if true;
     }
 
+    // Asynchronous friend matches (multiplayer)
+    match /multiplayerMatches/{matchId} {
+      function isParticipant() {
+        return isAuthenticated() &&
+               (resource.data.hostUid == request.auth.uid ||
+                resource.data.guestUid == request.auth.uid);
+      }
+
+      // Waiting matches are readable by anyone signed in so a guest can
+      // look one up by invite code before joining; once a guest is
+      // assigned, only the two participants may read/write it.
+      allow read: if isAuthenticated() &&
+                     (resource.data.guestUid == null || isParticipant());
+      allow create: if isAuthenticated() &&
+                       request.resource.data.hostUid == request.auth.uid &&
+                       request.resource.data.guestUid == null;
+      // Joining: guest may claim an open match. Playing: either
+      // participant may update moves/status on an already-claimed match.
+      allow update: if isAuthenticated() &&
+                       (
+                         (resource.data.guestUid == null &&
+                          request.resource.data.guestUid == request.auth.uid)
+                         || isParticipant()
+                       );
+    }
+
     // Catch-all deny
     match /{document=**} {
       allow read, write: if false;

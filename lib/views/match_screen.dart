@@ -28,6 +28,7 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
   Square? selectedSquare;
   List<Move> legalMoves = [];
   bool isProcessing = false;
+  Move? hintMove;
   SkillEffectType? displayingSkillAnimation;
   String? displayingWardenName;
   String? displayingSkillName;
@@ -125,6 +126,32 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
                   'Skills Triggered: ${gameState.skillTriggeredCount}',
                   style: const TextStyle(fontSize: 14),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton.icon(
+                      onPressed: gameState.isPlayerTurn &&
+                              gameState.hintsRemaining > 0 &&
+                              !isProcessing
+                          ? _useHint
+                          : null,
+                      icon: const Icon(Icons.lightbulb_outline),
+                      label: Text('ヒント (${gameState.hintsRemaining})'),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton.icon(
+                      onPressed: gameState.isPlayerTurn &&
+                              gameState.undosRemaining > 0 &&
+                              !isProcessing &&
+                              gameState.moveHistory.length >= 2
+                          ? _undoLastExchange
+                          : null,
+                      icon: const Icon(Icons.undo),
+                      label: Text('待った (${gameState.undosRemaining})'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -162,6 +189,8 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
         final piece = gameState.board.getPiece(index);
         final isSelected = selectedSquare == index;
         final isLegalMove = legalMoves.any((m) => m.to == index);
+        final isHintSquare =
+            hintMove != null && (hintMove!.from == index || hintMove!.to == index);
 
         return GestureDetector(
           onTap: () {
@@ -173,9 +202,11 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
                   ? Colors.blue.shade400
                   : isLegalMove
                       ? Colors.green.shade400
-                      : isWhiteSquare
-                          ? Colors.brown.shade100
-                          : Colors.brown.shade400,
+                      : isHintSquare
+                          ? Colors.yellow.shade400
+                          : isWhiteSquare
+                              ? Colors.brown.shade100
+                              : Colors.brown.shade400,
             ),
             child: Center(
               child: Text(
@@ -229,8 +260,27 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
     // Alternative touch handling if needed
   }
 
+  void _useHint() {
+    final hint = ref.read(gameStateProvider.notifier).useHint();
+    if (hint == null) return;
+    setState(() => hintMove = hint);
+  }
+
+  void _undoLastExchange() {
+    final undone = ref.read(gameStateProvider.notifier).undoLastExchange();
+    if (!undone) return;
+    setState(() {
+      selectedSquare = null;
+      legalMoves = [];
+      hintMove = null;
+    });
+  }
+
   Future<void> _makePlayerMove(Move move) async {
-    setState(() => isProcessing = true);
+    setState(() {
+      isProcessing = true;
+      hintMove = null;
+    });
 
     final success = await ref.read(gameStateProvider.notifier).makePlayerMove(move);
 

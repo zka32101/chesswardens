@@ -12,6 +12,8 @@ class GameState {
   final List<Move> moveHistory;
   final int skillTriggeredCount;
   final DateTime? gameStartedAt;
+  final int hintsRemaining;
+  final int undosRemaining;
 
   const GameState({
     required this.board,
@@ -22,6 +24,8 @@ class GameState {
     required this.moveHistory,
     required this.skillTriggeredCount,
     this.gameStartedAt,
+    this.hintsRemaining = GameStateNotifier.maxHintsPerMatch,
+    this.undosRemaining = GameStateNotifier.maxUndosPerMatch,
   });
 
   GameState copyWith({
@@ -33,6 +37,8 @@ class GameState {
     List<Move>? moveHistory,
     int? skillTriggeredCount,
     DateTime? gameStartedAt,
+    int? hintsRemaining,
+    int? undosRemaining,
   }) {
     return GameState(
       board: board ?? this.board,
@@ -43,12 +49,18 @@ class GameState {
       moveHistory: moveHistory ?? this.moveHistory,
       skillTriggeredCount: skillTriggeredCount ?? this.skillTriggeredCount,
       gameStartedAt: gameStartedAt ?? this.gameStartedAt,
+      hintsRemaining: hintsRemaining ?? this.hintsRemaining,
+      undosRemaining: undosRemaining ?? this.undosRemaining,
     );
   }
 }
 
 /// Game state notifier
 class GameStateNotifier extends StateNotifier<GameState?> {
+  static const int maxHintsPerMatch = 3;
+  static const int maxUndosPerMatch = 3;
+  static const int hintSearchDepth = 2;
+
   final ChessEngineService _engine = ChessEngineService();
   final SkillEvaluationService _skillService = SkillEvaluationService();
 
@@ -144,6 +156,53 @@ class GameStateNotifier extends StateNotifier<GameState?> {
     }
 
     return false;
+  }
+
+  Board _rebuildBoard(List<Move> moves) {
+    final board = Board();
+    for (final m in moves) {
+      board.makeMove(m);
+    }
+    return board;
+  }
+
+  /// Undoes the last full exchange (the player's move and the AI's
+  /// reply), returning to the player's turn. Limited to
+  /// [maxUndosPerMatch] uses per match. Returns whether the undo applied.
+  bool undoLastExchange() {
+    if (state == null) return false;
+    if (!state!.isPlayerTurn) return false;
+    if (state!.undosRemaining <= 0) return false;
+    if (state!.moveHistory.length < 2) return false;
+
+    final newHistory =
+        state!.moveHistory.sublist(0, state!.moveHistory.length - 2);
+
+    state = state!.copyWith(
+      board: _rebuildBoard(newHistory),
+      moveHistory: newHistory,
+      isPlayerTurn: true,
+      undosRemaining: state!.undosRemaining - 1,
+    );
+    return true;
+  }
+
+  /// Suggests a move for the player's current turn without applying it,
+  /// consuming one of [maxHintsPerMatch] hints. Returns null if no hints
+  /// remain, it isn't the player's turn, or there is no legal move.
+  Move? useHint() {
+    if (state == null || !state!.isPlayerTurn) return null;
+    if (state!.hintsRemaining <= 0) return null;
+
+    // Search on a copy: findBestMove mutates/restores the board during
+    // its search, and Board.undoMove doesn't fully restore captures, so
+    // running it against the live board risks corrupting real game state.
+    final engine = ChessEngineService(initialBoard: Board.copy(state!.board));
+    final hint = engine.findBestMove(true, depth: hintSearchDepth);
+    if (hint == null) return null;
+
+    state = state!.copyWith(hintsRemaining: state!.hintsRemaining - 1);
+    return hint;
   }
 
   /// End the current game

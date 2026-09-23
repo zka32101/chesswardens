@@ -36,6 +36,30 @@ class Move {
 
   @override
   int get hashCode => from.hashCode ^ to.hashCode ^ promotion.hashCode;
+
+  /// Serialize for persistence (e.g. Firestore match logs, replays).
+  Map<String, dynamic> toMap() => {
+        'from': from,
+        'to': to,
+        'promotion': promotion?.name,
+        'isCapture': isCapture,
+        'isEnPassant': isEnPassant,
+        'isCastling': isCastling,
+      };
+
+  factory Move.fromMap(Map<String, dynamic> map) {
+    final promotionName = map['promotion'] as String?;
+    return Move(
+      from: map['from'] as int,
+      to: map['to'] as int,
+      promotion: promotionName == null
+          ? null
+          : PieceType.values.firstWhere((t) => t.name == promotionName),
+      isCapture: map['isCapture'] as bool? ?? false,
+      isEnPassant: map['isEnPassant'] as bool? ?? false,
+      isCastling: map['isCastling'] as bool? ?? false,
+    );
+  }
 }
 
 /// Piece on board with Warden attributes (HP, skill)

@@ -368,6 +368,7 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
               matchDuration: matchDuration,
               aiDifficulty: widget.aiDifficulty,
               playerWardenIds: widget.playerWardenIds,
+              moves: gameState.moveHistory,
             ),
           ),
         );

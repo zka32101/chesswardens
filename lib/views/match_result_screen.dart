@@ -63,6 +63,19 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
         _expController.forward();
       }
     });
+
+    _recordDailyMissionProgress();
+  }
+
+  void _recordDailyMissionProgress() {
+    final missions = ref.read(dailyMissionsProvider.notifier);
+    missions.recordProgress(DailyMissionType.playMatches);
+    if (widget.result == MatchResult.win) {
+      missions.recordProgress(DailyMissionType.winMatch);
+    }
+    if (widget.skillTriggeredCount > 0) {
+      missions.recordProgress(DailyMissionType.triggerSkill);
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/index.dart';
 import '../services/index.dart';
+import '../services/notification_service.dart';
 import '../viewmodels/index.dart';
 
 /// Live-ish (Firestore-polled) board for an asynchronous friend match.
@@ -24,6 +25,22 @@ class _MultiplayerMatchScreenState
   int? selectedSquare;
   List<Move> legalMoves = [];
   bool _isSubmitting = false;
+  bool? _lastIsMyTurn;
+
+  void _handleMatchUpdate(MultiplayerMatch match, String? myUid) {
+    if (!match.isFull || match.status != MultiplayerMatchStatus.active) {
+      _lastIsMyTurn = null;
+      return;
+    }
+
+    final isMyTurn = match.currentTurnUid == myUid;
+    if (_lastIsMyTurn == false && isMyTurn) {
+      NotificationService.instance.showYourTurnNotification(
+        matchId: match.id,
+      );
+    }
+    _lastIsMyTurn = isMyTurn;
+  }
 
   Board _boardFromMoves(List<Move> moves) {
     final board = Board();
@@ -100,6 +117,14 @@ class _MultiplayerMatchScreenState
     final matchAsync =
         ref.watch(multiplayerMatchStreamProvider(widget.matchId));
     final myUid = ref.watch(userIdProvider);
+
+    ref.listen<AsyncValue<MultiplayerMatch>>(
+      multiplayerMatchStreamProvider(widget.matchId),
+      (previous, next) {
+        final match = next.valueOrNull;
+        if (match != null) _handleMatchUpdate(match, myUid);
+      },
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('フレンド対戦')),

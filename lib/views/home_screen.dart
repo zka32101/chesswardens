@@ -5,6 +5,7 @@ import '../models/index.dart';
 import '../viewmodels/index.dart';
 import 'match_history_screen.dart';
 import 'match_screen.dart';
+import 'multiplayer_lobby_screen.dart';
 import 'onboarding_screen.dart';
 import 'warden_collection_screen.dart';
 import 'warden_growth_screen.dart';
@@ -51,6 +52,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: const Text('Chess Wardens'),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.people),
+            tooltip: 'フレンド対戦',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const MultiplayerLobbyScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.menu_book),
             tooltip: 'ワーデン図鑑',

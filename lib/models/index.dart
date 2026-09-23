@@ -7,4 +7,5 @@ export 'multiplayer_match.dart';
 export 'daily_bonus.dart';
 export 'leaderboard_entry.dart';
 export 'achievement.dart';
+export 'friend.dart';
 export 'equipment.dart';

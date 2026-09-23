@@ -7,3 +7,4 @@ export 'multiplayer_provider.dart';
 export 'daily_bonus_provider.dart';
 export 'leaderboard_provider.dart';
 export 'achievement_provider.dart';
+export 'friend_provider.dart';

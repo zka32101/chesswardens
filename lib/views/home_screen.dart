@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/index.dart';
 import '../viewmodels/index.dart';
 import 'achievements_screen.dart';
+import 'friends_screen.dart';
 import 'leaderboard_screen.dart';
 import 'match_history_screen.dart';
 import 'match_screen.dart';
@@ -105,6 +106,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const AchievementsScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.contacts),
+            tooltip: 'フレンド',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const FriendsScreen(),
                 ),
               );
             },

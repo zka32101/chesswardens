@@ -6,6 +6,7 @@ import '../viewmodels/index.dart';
 import 'match_screen.dart';
 import 'onboarding_screen.dart';
 import 'warden_growth_screen.dart';
+import 'widgets/daily_bonus_widget.dart';
 
 /// Home screen - main entry point after login
 class HomeScreen extends ConsumerStatefulWidget {
@@ -67,6 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      const DailyBonusWidget(),
                       const Padding(
                         padding: EdgeInsets.all(16),
                         child: Text(

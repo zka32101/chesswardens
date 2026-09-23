@@ -74,3 +74,12 @@ List<LeaderboardEntry> rankLeaderboardEntries(List<LeaderboardEntry> entries) {
   });
   return sorted;
 }
+
+/// Keeps only entries whose uid is in [allowedUids] (typically the
+/// caller's friends plus themself), for the friend-only leaderboard view.
+List<LeaderboardEntry> filterToUids(
+  List<LeaderboardEntry> entries,
+  Set<String> allowedUids,
+) {
+  return entries.where((e) => allowedUids.contains(e.uid)).toList();
+}

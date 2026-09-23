@@ -1,4 +1,5 @@
 import 'enums.dart';
+import '../services/chess_engine_service.dart' show Move;
 
 /// 対局履歴
 class MatchLog {
@@ -12,6 +13,10 @@ class MatchLog {
   final int movesPlayed;
   final DateTime playedAt;
 
+  /// Full move-by-move record of the match, used for replay/観戦モード.
+  /// Empty for match logs recorded before this field existed.
+  final List<Move> moves;
+
   const MatchLog({
     required this.id,
     required this.uid,
@@ -22,7 +27,10 @@ class MatchLog {
     required this.aiScore,
     required this.movesPlayed,
     required this.playedAt,
+    this.moves = const [],
   });
+
+  bool get hasReplay => moves.isNotEmpty;
 
   /// Calculate experience gain
   int calculateExpGain() {
@@ -53,6 +61,7 @@ class MatchLog {
       'aiScore': aiScore,
       'movesPlayed': movesPlayed,
       'playedAt': playedAt.toIso8601String(),
+      'moves': moves.map((m) => m.toMap()).toList(),
     };
   }
 
@@ -73,6 +82,10 @@ class MatchLog {
       aiScore: map['aiScore'] ?? 0,
       movesPlayed: map['movesPlayed'] ?? 0,
       playedAt: DateTime.parse(map['playedAt']),
+      moves: (map['moves'] as List<dynamic>?)
+              ?.map((m) => Move.fromMap(Map<String, dynamic>.from(m as Map)))
+              .toList() ??
+          const [],
     );
   }
 }

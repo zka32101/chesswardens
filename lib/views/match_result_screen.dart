@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/index.dart';
+import '../services/chess_engine_service.dart' show Move;
 import '../viewmodels/index.dart';
 import 'share_card_screen.dart';
 
@@ -16,6 +17,7 @@ class MatchResultScreen extends ConsumerStatefulWidget {
   final Duration? matchDuration;
   final AIDifficulty aiDifficulty;
   final List<String> playerWardenIds;
+  final List<Move> moves;
 
   const MatchResultScreen({
     Key? key,
@@ -27,6 +29,7 @@ class MatchResultScreen extends ConsumerStatefulWidget {
     this.matchDuration,
     required this.aiDifficulty,
     required this.playerWardenIds,
+    this.moves = const [],
   }) : super(key: key);
 
   @override
@@ -63,6 +66,34 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
         _expController.forward();
       }
     });
+
+    _recordMatchHistory();
+    _recordDailyMissionProgress();
+  }
+
+  void _recordMatchHistory() {
+    final uid = ref.read(userIdProvider);
+    if (uid == null) return;
+    ref.read(matchHistoryNotifierProvider(uid).notifier).recordMatch(
+          widget.aiDifficulty,
+          widget.result,
+          widget.skillTriggeredCount,
+          widget.playerScore,
+          widget.aiScore,
+          widget.movesPlayed,
+          moves: widget.moves,
+        );
+  }
+
+  void _recordDailyMissionProgress() {
+    final missions = ref.read(dailyMissionsProvider.notifier);
+    missions.recordProgress(DailyMissionType.playMatches);
+    if (widget.result == MatchResult.win) {
+      missions.recordProgress(DailyMissionType.winMatch);
+    }
+    if (widget.skillTriggeredCount > 0) {
+      missions.recordProgress(DailyMissionType.triggerSkill);
+    }
   }
 
   @override

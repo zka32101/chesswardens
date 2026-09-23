@@ -4,3 +4,4 @@ export 'game_state_provider.dart';
 export 'match_history_provider.dart';
 export 'share_card_provider.dart';
 export 'multiplayer_provider.dart';
+export 'daily_bonus_provider.dart';

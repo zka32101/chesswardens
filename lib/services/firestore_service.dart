@@ -9,6 +9,7 @@ class FirestoreService {
   static const String userWardensSubcollection = 'wardens';
   static const String matchLogsSubcollection = 'matchLogs';
   static const String shareCardsCollection = 'shareCards';
+  static const String leaderboardCollection = 'leaderboardEntries';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const _uuid = Uuid();
@@ -165,6 +166,29 @@ class FirestoreService {
     return snapshot.docs
         .map((doc) => ShareCard.fromMap(doc.data()))
         .toList();
+  }
+
+  /// Upserts the caller's aggregated stats into the public leaderboard.
+  /// Called after each match with the latest cumulative totals (client
+  /// authoritative, consistent with how match logs are already trusted
+  /// client-side in this app).
+  Future<void> upsertLeaderboardEntry(LeaderboardEntry entry) async {
+    await _firestore
+        .collection(leaderboardCollection)
+        .doc(entry.uid)
+        .set(entry.toMap());
+  }
+
+  /// Streams the top leaderboard entries ordered by total wins.
+  Stream<List<LeaderboardEntry>> streamTopLeaderboard({int limit = 50}) {
+    return _firestore
+        .collection(leaderboardCollection)
+        .orderBy('totalWins', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => LeaderboardEntry.fromMap(doc.data()))
+            .toList());
   }
 
   /// Record analytics event

@@ -71,10 +71,10 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
     _recordDailyMissionProgress();
   }
 
-  void _recordMatchHistory() {
+  Future<void> _recordMatchHistory() async {
     final uid = ref.read(userIdProvider);
     if (uid == null) return;
-    ref.read(matchHistoryNotifierProvider(uid).notifier).recordMatch(
+    await ref.read(matchHistoryNotifierProvider(uid).notifier).recordMatch(
           widget.aiDifficulty,
           widget.result,
           widget.skillTriggeredCount,
@@ -82,6 +82,23 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
           widget.aiScore,
           widget.movesPlayed,
           moves: widget.moves,
+        );
+    await _submitLeaderboardStats(uid);
+  }
+
+  Future<void> _submitLeaderboardStats(String uid) async {
+    final matches = ref.read(matchHistoryNotifierProvider(uid));
+    // History is newest-first; reverse for chronological win-streak calc.
+    final didWinInOrder =
+        matches.reversed.map((m) => m.result == MatchResult.win).toList();
+    final (wins, totalMatches, bestStreak) =
+        computeLeaderboardStats(didWinInOrder);
+
+    await ref.read(leaderboardNotifierProvider).submitStats(
+          uid: uid,
+          totalWins: wins,
+          totalMatches: totalMatches,
+          bestWinStreak: bestStreak,
         );
   }
 

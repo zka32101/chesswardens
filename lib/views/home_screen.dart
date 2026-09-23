@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/index.dart';
 import '../viewmodels/index.dart';
+import 'leaderboard_screen.dart';
 import 'match_history_screen.dart';
 import 'match_screen.dart';
 import 'multiplayer_lobby_screen.dart';
@@ -81,6 +82,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const MatchHistoryScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.leaderboard),
+            tooltip: 'ランキング',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const LeaderboardScreen(),
                 ),
               );
             },

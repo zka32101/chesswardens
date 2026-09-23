@@ -72,6 +72,25 @@ service cloud.firestore {
       allow list: if true;
     }
 
+    // Global leaderboard (public, one doc per user, client-aggregated
+    // stats — same trust model as match logs elsewhere in this app).
+    match /leaderboardEntries/{userId} {
+      function isValidLeaderboardEntry() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['uid', 'totalWins', 'totalMatches', 'bestWinStreak', 'updatedAt']) &&
+               data.uid == request.auth.uid &&
+               data.totalWins >= 0 &&
+               data.totalMatches >= data.totalWins &&
+               data.bestWinStreak >= 0 &&
+               data.bestWinStreak <= data.totalMatches;
+      }
+
+      allow read: if true;
+      allow create: if isOwner(userId) && isValidLeaderboardEntry();
+      allow update: if isOwner(userId) && isValidLeaderboardEntry();
+      allow delete: if isOwner(userId);
+    }
+
     // Asynchronous friend matches (multiplayer)
     match /multiplayerMatches/{matchId} {
       function isParticipant() {

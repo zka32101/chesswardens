@@ -38,7 +38,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
   }
 
   Future<void> _attemptLevelUp() async {
-    if (!widget.userWarden.canLevelUp()) {
+    if (!_userWarden.canLevelUp()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('レベルアップの条件を満たしていません')),
       );
@@ -50,7 +50,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
 
     final uid = ref.read(userIdProvider);
     if (uid != null) {
-      final updatedWarden = widget.userWarden.levelUp();
+      final updatedWarden = _userWarden.levelUp();
       await ref
           .read(userWardenNotifierProvider(uid).notifier)
           .updateWarden(updatedWarden);
@@ -68,12 +68,20 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
     }
   }
 
+  UserWarden get _userWarden {
+    final wardens = ref.watch(userWardensProvider).valueOrNull ?? [];
+    final matches =
+        wardens.where((w) => w.wardenId == widget.userWarden.wardenId);
+    return matches.isEmpty ? widget.userWarden : matches.first;
+  }
+
   @override
   Widget build(BuildContext context) {
     final skill = ref.watch(skillByIdProvider(widget.wardenDefinition.skillId));
+    final userWarden = _userWarden;
     final nextLevelExp =
-        widget.userWarden.expRequiredForNextLevel(widget.userWarden.level);
-    final expProgress = widget.userWarden.exp / nextLevelExp;
+        userWarden.expRequiredForNextLevel(userWarden.level);
+    final expProgress = userWarden.exp / nextLevelExp;
 
     return Scaffold(
       appBar: AppBar(
@@ -101,6 +109,10 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
 
             // Stats section
             _buildStatsSection(context),
+            const SizedBox(height: 24),
+
+            // Equipment section
+            _buildEquipmentSection(context),
             const SizedBox(height: 24),
 
             // Level up button
@@ -187,13 +199,21 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
           const SizedBox(height: 16),
           _StatusRow(
             label: 'レベル',
-            value: widget.userWarden.level.toString(),
+            value: _userWarden.level.toString(),
             icon: '📊',
           ),
           const SizedBox(height: 12),
           _StatusRow(
+            label: '形態',
+            value: evolutionStageLabel(
+              evolutionStageForLevel(_userWarden.level),
+            ),
+            icon: '🌱',
+          ),
+          const SizedBox(height: 12),
+          _StatusRow(
             label: '経験値',
-            value: '${widget.userWarden.exp} / $nextLevelExp',
+            value: '${_userWarden.exp} / $nextLevelExp',
             icon: '⭐',
           ),
           const SizedBox(height: 12),
@@ -266,7 +286,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            '${widget.userWarden.exp} / $nextLevelExp EXP',
+            '${_userWarden.exp} / $nextLevelExp EXP',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -275,7 +295,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
   }
 
   Widget _buildSkillSection(BuildContext context, SkillDefinition skill) {
-    final currentLevel = widget.userWarden.level;
+    final currentLevel = _userWarden.level;
     final skillTriggerRate = skill.getTriggerRate(currentLevel);
     final skillValue = skill.getValue(currentLevel);
 
@@ -377,6 +397,58 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
     );
   }
 
+  Widget _buildEquipmentSection(BuildContext context) {
+    final level = _userWarden.level;
+    final unlocked = unlockedEquipmentForLevel(level);
+    final bySlot = <EquipmentSlot, List<Equipment>>{
+      for (final slot in EquipmentSlot.values)
+        slot: unlocked.where((e) => e.slot == slot).toList(),
+    };
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '装備',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          for (final slot in EquipmentSlot.values)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _EquipmentSlotPicker(
+                slot: slot,
+                options: bySlot[slot] ?? [],
+                equippedId: _userWarden.equippedBySlot[slot.name],
+                onSelect: (equipmentId) => _onEquipmentSelected(slot, equipmentId),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onEquipmentSelected(EquipmentSlot slot, String? equipmentId) async {
+    final uid = ref.read(userIdProvider);
+    if (uid == null) return;
+
+    final updated = equipmentId == null
+        ? _userWarden.unequipSlot(slot.name)
+        : _userWarden.equipItem(slot.name, equipmentId);
+
+    await ref.read(userWardenNotifierProvider(uid).notifier).updateWarden(updated);
+  }
+
   Widget _buildStatsSection(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -407,7 +479,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
           const SizedBox(height: 8),
           _DetailRow(
             label: 'アンロック日時',
-            value: widget.userWarden.unlockedAt
+            value: _userWarden.unlockedAt
                 .toString()
                 .split('.')
                 .first,
@@ -418,7 +490,7 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
   }
 
   Widget _buildLevelUpButton() {
-    final canLevelUp = widget.userWarden.canLevelUp();
+    final canLevelUp = _userWarden.canLevelUp();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -441,20 +513,28 @@ class _WardenGrowthScreenState extends ConsumerState<WardenGrowthScreen>
     );
   }
 
-  int _calculateHp() {
-    return widget.wardenDefinition.baseHp +
-        (widget.userWarden.level - 1) * 5;
+  List<Equipment> get _equippedItems {
+    return _userWarden.equippedBySlot.values
+        .map(Equipment.byId)
+        .whereType<Equipment>()
+        .toList();
   }
 
-  int _calculateAttack() {
-    return widget.wardenDefinition.baseAttack +
-        (widget.userWarden.level - 1) * 2;
+  (int, int, int) get _stats {
+    return effectiveStats(
+      baseHp: widget.wardenDefinition.baseHp,
+      baseAttack: widget.wardenDefinition.baseAttack,
+      baseDefense: widget.wardenDefinition.baseDefense,
+      level: _userWarden.level,
+      equipped: _equippedItems,
+    );
   }
 
-  int _calculateDefense() {
-    return widget.wardenDefinition.baseDefense +
-        (widget.userWarden.level - 1) * 2;
-  }
+  int _calculateHp() => _stats.$1;
+
+  int _calculateAttack() => _stats.$2;
+
+  int _calculateDefense() => _stats.$3;
 
   String _getWardenEmoji() {
     switch (widget.wardenDefinition.id) {
@@ -514,6 +594,60 @@ class _StatusRow extends StatelessWidget {
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Dropdown for equipping/unequipping an item in a single [slot].
+class _EquipmentSlotPicker extends StatelessWidget {
+  final EquipmentSlot slot;
+  final List<Equipment> options;
+  final String? equippedId;
+  final ValueChanged<String?> onSelect;
+
+  const _EquipmentSlotPicker({
+    required this.slot,
+    required this.options,
+    required this.equippedId,
+    required this.onSelect,
+  });
+
+  String get _slotLabel {
+    switch (slot) {
+      case EquipmentSlot.weapon:
+        return '武器';
+      case EquipmentSlot.armor:
+        return '防具';
+      case EquipmentSlot.accessory:
+        return '装飾品';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(width: 64, child: Text(_slotLabel)),
+        Expanded(
+          child: DropdownButton<String?>(
+            isExpanded: true,
+            value: options.any((e) => e.id == equippedId) ? equippedId : null,
+            hint: const Text('未装備'),
+            items: [
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('未装備'),
+              ),
+              for (final e in options)
+                DropdownMenuItem<String?>(
+                  value: e.id,
+                  child: Text(e.name),
+                ),
+            ],
+            onChanged: onSelect,
           ),
         ),
       ],

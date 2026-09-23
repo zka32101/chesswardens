@@ -168,6 +168,10 @@ class UserWarden {
   final DateTime unlockedAt;
   final DateTime? lastUpgradedAt;
 
+  /// Equipped item id per slot name (e.g. 'weapon' -> 'weapon_iron').
+  /// A slot with no equipped item is simply absent from the map.
+  final Map<String, String> equippedBySlot;
+
   const UserWarden({
     required this.uid,
     required this.wardenId,
@@ -175,7 +179,33 @@ class UserWarden {
     required this.exp,
     required this.unlockedAt,
     this.lastUpgradedAt,
+    this.equippedBySlot = const {},
   });
+
+  UserWarden equipItem(String slotName, String equipmentId) {
+    return UserWarden(
+      uid: uid,
+      wardenId: wardenId,
+      level: level,
+      exp: exp,
+      unlockedAt: unlockedAt,
+      lastUpgradedAt: lastUpgradedAt,
+      equippedBySlot: {...equippedBySlot, slotName: equipmentId},
+    );
+  }
+
+  UserWarden unequipSlot(String slotName) {
+    final updated = {...equippedBySlot}..remove(slotName);
+    return UserWarden(
+      uid: uid,
+      wardenId: wardenId,
+      level: level,
+      exp: exp,
+      unlockedAt: unlockedAt,
+      lastUpgradedAt: lastUpgradedAt,
+      equippedBySlot: updated,
+    );
+  }
 
   /// Calculate exp required for next level
   int expRequiredForNextLevel(int currentLevel) {
@@ -195,6 +225,7 @@ class UserWarden {
       exp: exp - expRequiredForNextLevel(level),
       unlockedAt: unlockedAt,
       lastUpgradedAt: DateTime.now(),
+      equippedBySlot: equippedBySlot,
     );
   }
 
@@ -206,6 +237,7 @@ class UserWarden {
       exp: exp + amount,
       unlockedAt: unlockedAt,
       lastUpgradedAt: lastUpgradedAt,
+      equippedBySlot: equippedBySlot,
     );
   }
 
@@ -217,6 +249,7 @@ class UserWarden {
       'exp': exp,
       'unlockedAt': unlockedAt.toIso8601String(),
       'lastUpgradedAt': lastUpgradedAt?.toIso8601String(),
+      'equippedBySlot': equippedBySlot,
     };
   }
 
@@ -230,6 +263,9 @@ class UserWarden {
       lastUpgradedAt: map['lastUpgradedAt'] != null
           ? DateTime.parse(map['lastUpgradedAt'])
           : null,
+      equippedBySlot: map['equippedBySlot'] != null
+          ? Map<String, String>.from(map['equippedBySlot'] as Map)
+          : const {},
     );
   }
 }

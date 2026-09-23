@@ -69,6 +69,7 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
 
     _recordMatchHistory();
     _recordDailyMissionProgress();
+    _recordAchievementProgress();
   }
 
   Future<void> _recordMatchHistory() async {
@@ -110,6 +111,21 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
     }
     if (widget.skillTriggeredCount > 0) {
       missions.recordProgress(DailyMissionType.triggerSkill);
+    }
+  }
+
+  Future<void> _recordAchievementProgress() async {
+    final wardensUnlockedCount = ref.read(wardensUnlockedCountProvider);
+    final newlyUnlocked = await ref.read(achievementProvider.notifier).recordMatch(
+          didWin: widget.result == MatchResult.win,
+          skillTriggeredCount: widget.skillTriggeredCount,
+          wardensUnlockedCount: wardensUnlockedCount,
+        );
+    if (newlyUnlocked.isEmpty || !mounted) return;
+    for (final achievement in newlyUnlocked) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('実績解除: ${achievement.title}！')),
+      );
     }
   }
 

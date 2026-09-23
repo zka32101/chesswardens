@@ -6,7 +6,9 @@ import '../viewmodels/index.dart';
 import 'match_history_screen.dart';
 import 'match_screen.dart';
 import 'onboarding_screen.dart';
+import 'warden_collection_screen.dart';
 import 'warden_growth_screen.dart';
+import 'widgets/daily_bonus_widget.dart';
 
 /// Home screen - main entry point after login
 class HomeScreen extends ConsumerStatefulWidget {
@@ -50,6 +52,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.menu_book),
+            tooltip: 'ワーデン図鑑',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const WardenCollectionScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.history),
             tooltip: '対局履歴・リプレイ',
             onPressed: () {
@@ -81,6 +94,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+                      const DailyBonusWidget(),
                       const Padding(
                         padding: EdgeInsets.all(16),
                         child: Text(

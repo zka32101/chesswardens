@@ -68,6 +68,7 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
     });
 
     _recordMatchHistory();
+    _recordDailyMissionProgress();
   }
 
   void _recordMatchHistory() {
@@ -82,6 +83,17 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
           widget.movesPlayed,
           moves: widget.moves,
         );
+  }
+
+  void _recordDailyMissionProgress() {
+    final missions = ref.read(dailyMissionsProvider.notifier);
+    missions.recordProgress(DailyMissionType.playMatches);
+    if (widget.result == MatchResult.win) {
+      missions.recordProgress(DailyMissionType.winMatch);
+    }
+    if (widget.skillTriggeredCount > 0) {
+      missions.recordProgress(DailyMissionType.triggerSkill);
+    }
   }
 
   @override

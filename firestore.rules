@@ -106,6 +106,23 @@ service cloud.firestore {
       allow delete: if isOwner(userId);
     }
 
+    // Publicly-watchable replay shares (immutable snapshots of a
+    // MatchLog, keyed by a short spectate code — see createSpectateShare).
+    match /spectateShares/{code} {
+      function isValidSpectateShare() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['uid', 'aiDifficulty', 'result', 'skillTriggeredCount', 'playerScore', 'aiScore', 'movesPlayed', 'playedAt', 'code']) &&
+               data.code == code &&
+               data.uid == request.auth.uid;
+      }
+
+      allow read: if true;
+      allow create: if isAuthenticated() && isValidSpectateShare();
+      // Shares are immutable once published; no update, only removal by
+      // the sharer if they want to revoke it.
+      allow delete: if isOwner(resource.data.uid);
+    }
+
     // Asynchronous friend matches (multiplayer)
     match /multiplayerMatches/{matchId} {
       function isParticipant() {

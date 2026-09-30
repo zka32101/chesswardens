@@ -6,6 +6,7 @@ import '../models/index.dart';
 import '../services/chess_engine_service.dart' show Move;
 import '../viewmodels/index.dart';
 import 'share_card_screen.dart';
+import 'widgets/achievement_unlock_dialog.dart';
 
 /// Match result screen - Shows battle results and rewards
 class MatchResultScreen extends ConsumerStatefulWidget {
@@ -122,10 +123,11 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
           wardensUnlockedCount: wardensUnlockedCount,
         );
     if (newlyUnlocked.isEmpty || !mounted) return;
+    // Shown one at a time so each achievement gets its own celebration
+    // rather than stacking snackbars.
     for (final achievement in newlyUnlocked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('実績解除: ${achievement.title}！')),
-      );
+      if (!mounted) return;
+      await showAchievementUnlockedDialog(context, achievement);
     }
   }
 

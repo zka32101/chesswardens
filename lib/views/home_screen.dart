@@ -10,6 +10,7 @@ import 'match_history_screen.dart';
 import 'match_screen.dart';
 import 'multiplayer_lobby_screen.dart';
 import 'onboarding_screen.dart';
+import 'spectate_screen.dart';
 import 'warden_collection_screen.dart';
 import 'warden_growth_screen.dart';
 import 'widgets/daily_bonus_widget.dart';
@@ -117,6 +118,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const FriendsScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.visibility),
+            tooltip: '観戦',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const SpectateScreen(),
                 ),
               );
             },

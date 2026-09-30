@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import '../models/index.dart';
 import 'chess_engine_service.dart' show Move;
+import 'multiplayer_service.dart' show generateInviteCode;
 
 /// Firestore database service for Chess Wardens
 class FirestoreService {
@@ -10,6 +11,7 @@ class FirestoreService {
   static const String matchLogsSubcollection = 'matchLogs';
   static const String shareCardsCollection = 'shareCards';
   static const String leaderboardCollection = 'leaderboardEntries';
+  static const String spectateSharesCollection = 'spectateShares';
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const _uuid = Uuid();
@@ -124,6 +126,28 @@ class FirestoreService {
     return snapshot.docs
         .map((doc) => MatchLog.fromMap(doc.data()))
         .toList();
+  }
+
+  /// Publishes a completed match's replay data under a short, public
+  /// "spectate code" so anyone with the code can watch it, without
+  /// needing access to the owner's private `matchLogs`. Reuses the same
+  /// code alphabet/generator as multiplayer invite codes.
+  Future<String> createSpectateShare(MatchLog matchLog) async {
+    final code = generateInviteCode();
+    await _firestore.collection(spectateSharesCollection).doc(code).set({
+      ...matchLog.toMap(),
+      'code': code,
+    });
+    return code;
+  }
+
+  /// Looks up a shared match by its spectate code. Returns null if no
+  /// share exists for that code.
+  Future<MatchLog?> getSpectateShareByCode(String code) async {
+    final doc =
+        await _firestore.collection(spectateSharesCollection).doc(code).get();
+    if (!doc.exists) return null;
+    return MatchLog.fromMap(doc.data()!);
   }
 
   /// Create share card

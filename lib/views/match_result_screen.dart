@@ -70,6 +70,7 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
 
     _recordMatchHistory();
     _recordDailyMissionProgress();
+    _recordWeeklyChallengeProgress();
     _recordAchievementProgress();
   }
 
@@ -112,6 +113,20 @@ class _MatchResultScreenState extends ConsumerState<MatchResultScreen>
     }
     if (widget.skillTriggeredCount > 0) {
       missions.recordProgress(DailyMissionType.triggerSkill);
+    }
+  }
+
+  void _recordWeeklyChallengeProgress() {
+    final challenges = ref.read(weeklyChallengesProvider.notifier);
+    challenges.recordProgress(WeeklyChallengeType.playMatches);
+    if (widget.result == MatchResult.win) {
+      challenges.recordProgress(WeeklyChallengeType.winMatches);
+    }
+    if (widget.skillTriggeredCount > 0) {
+      challenges.recordProgress(
+        WeeklyChallengeType.triggerSkills,
+        widget.skillTriggeredCount,
+      );
     }
   }
 

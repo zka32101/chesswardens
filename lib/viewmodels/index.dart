@@ -9,3 +9,4 @@ export 'leaderboard_provider.dart';
 export 'achievement_provider.dart';
 export 'friend_provider.dart';
 export 'spectate_provider.dart';
+export 'weekly_challenge_provider.dart';

@@ -14,6 +14,7 @@ import 'spectate_screen.dart';
 import 'warden_collection_screen.dart';
 import 'warden_growth_screen.dart';
 import 'widgets/daily_bonus_widget.dart';
+import 'widgets/weekly_challenge_widget.dart';
 
 /// Home screen - main entry point after login
 class HomeScreen extends ConsumerStatefulWidget {
@@ -155,6 +156,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     children: [
                       const DailyBonusWidget(),
+                      const WeeklyChallengeWidget(),
                       const Padding(
                         padding: EdgeInsets.all(16),
                         child: Text(
